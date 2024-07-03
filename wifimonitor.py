@@ -5,13 +5,12 @@ import re
 # Set up logging to file
 logging.basicConfig(filename='logTraffic.txt', level=logging.INFO, format='%(asctime)s - %(message)s')
 
-
 # Function to extract HTTP data
 def extract_http_info(packet):
     if packet.haslayer(Raw):
         payload = packet[Raw].load.decode(errors='ignore')
         http_info = None
-
+        
         if payload.startswith('GET') or payload.startswith('POST'):
             headers = payload.split('\r\n')
             request_line = headers[0]
@@ -23,7 +22,6 @@ def extract_http_info(packet):
                     break
             http_info = f"{method} {host}{path} {version}"
         return http_info
-
 
 # Define a function to process each packet
 def packet_callback(packet):
@@ -41,7 +39,9 @@ def packet_callback(packet):
             print(log_message)
             logging.info(log_message)
 
+# Specify the network interface (replace 'eth0' with your interface)
+interface = 'eth0'
 
 # Start sniffing with a filter for HTTP traffic
-print("Starting packet sniffing...")
-sniff(prn=packet_callback, filter="tcp port 80", count=0)
+print(f"Starting packet sniffing on interface {interface}...")
+sniff(prn=packet_callback, filter="tcp port 80", iface=interface, count=0)
